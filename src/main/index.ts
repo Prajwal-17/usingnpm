@@ -2,6 +2,8 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { db } from './db';
+import { users } from './db/schema';
 
 app.commandLine.appendSwitch('no-sandbox');
 app.commandLine.appendSwitch('disable-setuid-sandbox');
@@ -28,6 +30,11 @@ function createWindow(): void {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
+
+  db.insert(users).values({ name: 'Alice', email: 'alice@example.com' }).run();
+
+  const allUsers = db.select().from(users).all();
+  console.log('Users:', allUsers);
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
